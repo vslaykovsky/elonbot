@@ -3,18 +3,19 @@
 Trading bot that uses Elon Musk`s tweets to know when to buy cryptocurrency. 
 Here is how it works:
 
-1. Subscribing to someone's ([elonmusk](http://twitter.com/elonmusk)?) tweets 
-2. Automatically detecting mentions of DOGE or other crypto in the image(or text) 
+1. Subscribes to someone's ([elonmusk](http://twitter.com/elonmusk)?) tweets 
+2. Automatically detects mentions of DOGE or other crypto in the image(or text) 
 ![Elon's tweet](elontweet.png)
-3. Buying crypto on [Binance](http://www.ya.ru)
-4. Selling it after --auto-sell-delay seconds
+3. Buys crypto on [Binance](https://www.binance.com)
+4. Sells it after `--auto-sell-delay` seconds
 
 
 ## Installation
 
+```shell
 git clone http://github.com/vslaykovsky/elonbot
-pip install binance-python google-cloud-vision
-
+pip install python-binance google-cloud-vision unidecode
+```
 
 ## Running
 
@@ -31,11 +32,21 @@ pip install binance-python google-cloud-vision
     * Export path to your google vision configuration: ```export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your/google_vision_credentials.json```
 4. Run elonbot.py
 
+Here are some examples of how to run Elonbot. 
+
+With image text recognition:
+
 ```shell
-python elonbot.py 
-  --user=elonmusk 
-  --margin-type=cross_margin 
-  --crypto-rules="{\"doge\": \"DOGE\", \"btc|bitcoin\": \"BTC\"}" 
-  --auto-sell-delay=600 
-  --order-size=max
+python elonbot.py --user=elonmusk --margin-type=cross_margin  --crypto-rules='{"doge": "DOGE", "btc|bitcoin": "BTC"}' --auto-sell-delay=600  --order-size=max  --use-image-signal
+```
+
+No image text recognition
+```shell
+python elonbot.py --user=elonmusk --margin-type=cross_margin  --crypto-rules='{"doge": "DOGE", "btc|bitcoin": "BTC"}' --auto-sell-delay=600 --order-size=max
+```
+
+Dry run (only prints debug output, no orders are executed)
+
+```shell
+python elonbot.py --user=elonmusk --margin-type=cross_margin  --crypto-rules='{"doge": "DOGE", "btc|bitcoin": "BTC"}'  --auto-sell-delay=60 --order-size=max --dry-run
 ```

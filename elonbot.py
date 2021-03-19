@@ -74,15 +74,15 @@ class ElonBot:
             log('Failed to process attached image', ex)
             return ''
 
-    def validate_env(self) -> bool:
+    def validate_env(self, verbose=False) -> bool:
         binance_test = ('BINANCE_KEY' in os.environ) and ('BINANCE_SECRET' in os.environ)
-        if not binance_test:
+        if not binance_test and verbose:
             log('Please, provide BINANCE_KEY and BINANCE_SECRET environment variables')
         google_test = not self.use_image_signal or ('GOOGLE_APPLICATION_CREDENTIALS' in os.environ)
-        if not google_test:
+        if not google_test and verbose:
             log('Please, provide GOOGLE_APPLICATION_CREDENTIALS environment variable')
         twitter_test = 'TWITTER_BEARER_TOKEN' in os.environ
-        if not twitter_test:
+        if not twitter_test and verbose:
             log('Please, provide TWITTER_BEARER_TOKEN environment variable')
         return binance_test and google_test and twitter_test
 
@@ -190,6 +190,6 @@ if __name__ == "__main__":
                   args.order_size,
                   args.process_tweet,
                   args.dry_run)
-    if not bot.validate_env():
+    if not bot.validate_env(verbose=True):
         sys.exit(-1)
     bot.run()
