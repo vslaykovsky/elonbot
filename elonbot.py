@@ -77,13 +77,16 @@ class ElonBot:
     def validate_env(self, verbose=False) -> bool:
         binance_test = ('BINANCE_KEY' in os.environ) and ('BINANCE_SECRET' in os.environ)
         if not binance_test and verbose:
-            log('Please, provide BINANCE_KEY and BINANCE_SECRET environment variables')
+            log('Please, provide BINANCE_KEY and BINANCE_SECRET environment variables. '
+                'Check https://github.com/vslaykovsky/elonbot for details')
         google_test = not self.use_image_signal or ('GOOGLE_APPLICATION_CREDENTIALS' in os.environ)
         if not google_test and verbose:
-            log('Please, provide GOOGLE_APPLICATION_CREDENTIALS environment variable')
+            log('Please, provide GOOGLE_APPLICATION_CREDENTIALS environment variable. '
+                'Check https://github.com/vslaykovsky/elonbot for details')
         twitter_test = 'TWITTER_BEARER_TOKEN' in os.environ
         if not twitter_test and verbose:
-            log('Please, provide TWITTER_BEARER_TOKEN environment variable')
+            log('Please, provide TWITTER_BEARER_TOKEN environment variable. '
+                'Check https://github.com/vslaykovsky/elonbot for details')
         return binance_test and google_test and twitter_test
 
     def buy(self, ticker: str):
@@ -162,22 +165,41 @@ class ElonBot:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trade cryptocurrency at Binance using Twitter signal')
     parser.add_argument('--user', help='Twitter user to follow. Example: elonmusk', required=True)
-    parser.add_argument('--crypto-rules', help='JSON dictionary, where keys are regexp patterns, '
-                                               'values are corresponding cryptocurrency tickers', required=True,
+    parser.add_argument('--crypto-rules', help='JSON dictionary, where keys are regular expression patterns, '
+                                               'values are corresponding cryptocurrency tickers. elonbot.py '
+                                               'uses regular expressions to find tweets that mention cryptocurrency,'
+                                               'then buys corresponding crypto ticker',
                         default=json.dumps({'doge': 'DOGE', 'btc|bitcoin': 'BTC'}))
-    parser.add_argument('--margin-type', type=MarginType, choices=list(MarginType), required=True)
+    parser.add_argument('--margin-type', type=MarginType, help='isolated_margin or cross_margin. These are two margin '
+                                                               'types supported by Binance. Read this article to '
+                                                               'understand the difference: '
+                                                               'https://www.binance.com/en/blog/421499824684900602/Binance-Margin-Differences-Between-the-New-Isolated-Margin-Mode-and-Cross-Margin-Mode. '
+                                                               'You must transfer your assets to isolated margin or '
+                                                               'cross-margin to use this script',
+                        required=True)
     parser.add_argument('--auto-buy-delay', type=float, help='Buy after auto-buy-delay seconds', default=10)
     parser.add_argument('--auto-sell-delay', type=float, help='Sell after auto-sell-delay seconds', default=60 * 5)
-    parser.add_argument('--asset', default='USDT', help='asset to use to buy cryptocurrency')
+    parser.add_argument('--asset', default='USDT', help='asset to use to buy cryptocurrency. This is your "base" '
+                                                        'cryptocurrency used to store your deposit. Reasonable options '
+                                                        'are: USDT, BUSD, USDC. You must convert your deposit to one '
+                                                        'of these currencies in order to use the script')
     parser.add_argument('--use-image-signal', action='store_true',
-                        help='Extract text from attached twitter images using Google OCR',
+                        help='Extract text from attached twitter images using Google OCR. '
+                             'Requires correct value of GOOGLE_APPLICATION_CREDENTIALS environment variable.'
+                             'Check https://github.com/vslaykovsky/elonbot for more details',
                         default=True)
-    parser.add_argument('--order-size', help='Size of orders to execute. 1.0 means 100% of the deposit; '
-                                             '0.5 - 50% of the deposit; 2.0 - 200% of the deposit (marginal trade)'
-                                             '"max" - maximum borrowable amount', default='max')
-    parser.add_argument('--dry-run', action='store_true', help="Don't execute orders", default=False)
+    parser.add_argument('--order-size', help='Size of orders to execute. 1.0 means 100%% of the deposit; '
+                                             '0.5 - 50%% of the deposit; 2.0 - 200%% of the deposit (marginal trade)'
+                                             '"max" - maximum borrowable amount. max corresponds to  3x deposit '
+                                             'for cross-margin account and up to 5x for isolated-margin account',
+                        default='max')
+    parser.add_argument('--dry-run', action='store_true', help="Don't execute orders, only show debug output",
+                        default=False)
     parser.add_argument('--process-tweet',
-                        help="Don't subscribe to Twitter feed, only process a single tweet (useful for testing)",
+                        help="Don't subscribe to Twitter feed, only process a single tweet provided as a json string "
+                             "(useful for testing). Example value: "
+                             "'{\"data\": {\"text\": \"Dodge coin is not what we need\"}, \"includes\": {\"media\": "
+                             "[{\"url\": \"...\"}]}}'",
                         default=None)
     args = parser.parse_args()
     bot = ElonBot(args.user,
