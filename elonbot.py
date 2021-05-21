@@ -187,7 +187,7 @@ if __name__ == "__main__":
                         help='Extract text from attached twitter images using Google OCR. '
                              'Requires correct value of GOOGLE_APPLICATION_CREDENTIALS environment variable.'
                              'Check https://github.com/vslaykovsky/elonbot for more details',
-                        default=True)
+                        default=False)
     parser.add_argument('--order-size', help='Size of orders to execute. 1.0 means 100%% of the deposit; '
                                              '0.5 - 50%% of the deposit; 2.0 - 200%% of the deposit (marginal trade)'
                                              '"max" - maximum borrowable amount. max corresponds to  3x deposit '
